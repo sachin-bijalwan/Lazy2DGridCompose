@@ -1,7 +1,11 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    `maven-publish`
 }
 
 android {
@@ -34,7 +38,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -49,4 +52,29 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+
+            groupId = "com.zeel"
+            artifactId = "lazyinfinitegrid"
+            version = "0.0.1"
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/sachin-bijalwan/LazyTableCompose")
+            val propsFile = rootProject.file("github.properties")
+            val props = Properties()
+            props.load(FileInputStream(propsFile))
+            credentials {
+                username = props.get("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = props.get("gpr.token") as String? ?: System.getenv("TOKEN")
+            }
+        }
+    }
 }
