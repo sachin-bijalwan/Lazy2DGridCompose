@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.zeel.lazyinfinitegrid.LazyInfiniteGrid
+import com.zeel.lazyinfinitegrid.LazyTable
 
 
 
@@ -56,7 +56,7 @@ fun ExcelSheet(data: ImmutableList) {
                 .width(width)
         )
     }
-    LazyInfiniteGrid(
+    LazyTable(
         colCount = data.data.size,
         rowCount = data.data[0].size,
         heightInPixels = heightInPixels,
@@ -80,9 +80,9 @@ fun ExcelSheet(data: ImmutableList) {
 
 @Composable
 fun Test() {
-    val data = MutableList(50) { col ->
+    val data = MutableList(50) { row ->
         MutableList(20) {
-            "abc$it/$col"
+            "row$row col$it"
         }
     }
     ExcelSheet(ImmutableList(data))

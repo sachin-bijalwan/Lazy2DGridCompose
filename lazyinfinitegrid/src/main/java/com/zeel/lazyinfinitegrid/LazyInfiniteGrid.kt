@@ -8,16 +8,18 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 
+/**
+ * A table with support for adding sticky headers and only
+ * rendering views within viewport
+ */
 @Composable
-fun LazyInfiniteGrid(
+fun LazyTable(
     colCount: Int,
     rowCount: Int,
     heightInPixels: Float,
@@ -28,30 +30,32 @@ fun LazyInfiniteGrid(
     columnHeader: @Composable (Int) -> Unit,
     itemComposable: @Composable (Int, Int) -> Unit,
 ) {
+    /**
+     * It might be the case that all LazyListState are present together in
+     * viewport. So we're storing scroll pixels in this array
+     * and then later using it to calculate how much more scroll needs to take place
+     */
     val columnScrollMap = remember {
         mutableStateMapOf<Int, Float>()
     }
-    val currentColumnScroll = remember {
-        mutableStateOf(0f)
-    }
-    val currentHorizontalScroll = remember {
-        mutableStateOf(0f)
-    }
-    val nestedScrollConnection = remember(maxVerticalScrollThatCanHappen,maxHorizontalScrollThatCanHappen) {
-        GridNestedScrollConnection(
-            currentColumnScroll,
-            currentHorizontalScroll,
-            maxVerticalScrollThatCanHappen,
-            maxHorizontalScrollThatCanHappen
-        )
-    }
+
+    /**
+     * This connection receives all scroll events from children
+     */
+    val nestedScrollConnection =
+        remember(maxVerticalScrollThatCanHappen, maxHorizontalScrollThatCanHappen) {
+            TableNestedScrollConnection(
+                maxVerticalScrollThatCanHappen,
+                maxHorizontalScrollThatCanHappen
+            )
+        }
     Column(modifier.nestedScroll(nestedScrollConnection)) {
         /**
          * header row and it's listeners
          */
         val headerRowState = rememberLazyListState()
         ListenScroll(
-            currentHorizontalScroll, headerRowState,
+            nestedScrollConnection.currentXScroll, headerRowState,
         )
         LazyRow(state = headerRowState) {
             items(rowCount + 1) {
@@ -67,7 +71,7 @@ fun LazyInfiniteGrid(
              */
             val headerColumnState = rememberLazyListState()
             ListenScroll(
-                currentColumnScroll, headerColumnState,
+                nestedScrollConnection.currentYScroll, headerColumnState,
             )
             LazyColumn(state = headerColumnState) {
                 items(colCount) {
@@ -80,7 +84,7 @@ fun LazyInfiniteGrid(
              */
             val rowState = rememberLazyListState()
             ListenScroll(
-                currentHorizontalScroll,
+                nestedScrollConnection.currentXScroll,
                 rowState
             )
             LazyRow(
@@ -89,8 +93,8 @@ fun LazyInfiniteGrid(
             ) {
                 items(rowCount) { row ->
                     val columnScrollState = remember {
-                        columnScrollMap[row] = currentColumnScroll.value
-                        val scroll = currentColumnScroll.value
+                        columnScrollMap[row] = nestedScrollConnection.currentYScroll.floatValue
+                        val scroll = nestedScrollConnection.currentYScroll.floatValue
                         LazyListState(
                             (scroll / heightInPixels).toInt(),
                             (scroll % heightInPixels).toInt()
@@ -101,7 +105,7 @@ fun LazyInfiniteGrid(
                             itemComposable.invoke(row, col)
                         }
                     }
-                    ListenScroll(currentColumnScroll,
+                    ListenScroll(nestedScrollConnection.currentYScroll,
                         columnScrollState,
                         { columnScrollMap[row] ?: 0f }
                     ) {
@@ -109,40 +113,6 @@ fun LazyInfiniteGrid(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun ListenScroll(
-    currentScroll: MutableState<Float>,
-    childState: LazyListState,
-    childStateScroll: MutableState<Float> = mutableStateOf(0f)
-) {
-    ListenScroll(
-        currentScroll,
-        childState,
-        {
-            childStateScroll.value
-        }
-    ) {
-        childStateScroll.value = it
-    }
-}
-
-@Composable
-fun ListenScroll(
-    currentScroll: MutableState<Float>,
-    childState: LazyListState,
-    childStateScroll: () -> Float,
-    childStateScrollUpdate: (Float) -> Unit
-) {
-    LaunchedEffect(currentScroll.value) {
-        val scrollRequired = currentScroll.value - (childStateScroll.invoke())
-        childStateScrollUpdate.invoke(currentScroll.value)
-        val consumed = childState.dispatchRawDelta(scrollRequired)
-        if (consumed != scrollRequired) {
-            childStateScrollUpdate.invoke(childStateScroll.invoke() - (scrollRequired - consumed))
         }
     }
 }
