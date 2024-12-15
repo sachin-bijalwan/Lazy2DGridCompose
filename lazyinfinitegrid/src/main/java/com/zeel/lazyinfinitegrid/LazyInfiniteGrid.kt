@@ -23,6 +23,7 @@ fun LazyInfiniteGrid(
     heightInPixels: Float,
     maxVerticalScrollThatCanHappen: Float,
     maxHorizontalScrollThatCanHappen: Float,
+    modifier: Modifier = Modifier,
     rowHeader: @Composable (Int) -> Unit,
     columnHeader: @Composable (Int) -> Unit,
     itemComposable: @Composable (Int, Int) -> Unit,
@@ -36,7 +37,7 @@ fun LazyInfiniteGrid(
     val currentHorizontalScroll = remember {
         mutableStateOf(0f)
     }
-    val nestedScrollConnection = remember {
+    val nestedScrollConnection = remember(maxVerticalScrollThatCanHappen,maxHorizontalScrollThatCanHappen) {
         GridNestedScrollConnection(
             currentColumnScroll,
             currentHorizontalScroll,
@@ -44,7 +45,7 @@ fun LazyInfiniteGrid(
             maxHorizontalScrollThatCanHappen
         )
     }
-    Column(Modifier.nestedScroll(nestedScrollConnection)) {
+    Column(modifier.nestedScroll(nestedScrollConnection)) {
         /**
          * header row and it's listeners
          */
@@ -145,4 +146,3 @@ fun ListenScroll(
         }
     }
 }
-

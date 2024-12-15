@@ -31,7 +31,7 @@ fun ExcelSheet(data: ImmutableList) {
         width.toPx()
     }
     val maxVerticalScrollThatCanHappen by remember {
-        mutableStateOf(heightInPixels * data.data.size - screenHeight)
+        mutableStateOf(heightInPixels * (data.data.size+1) - screenHeight)
     }
 
     val maxHorizontalScrollThatCanHappen by remember {
