@@ -26,8 +26,8 @@ fun LazyTable(
     maxVerticalScrollThatCanHappen: Float,
     maxHorizontalScrollThatCanHappen: Float,
     modifier: Modifier = Modifier,
-    rowHeader: @Composable (Int) -> Unit,
-    columnHeader: @Composable (Int) -> Unit,
+    rowHeader: @Composable ((Int) -> Unit)? = null,
+    columnHeader: @Composable ((Int) -> Unit)? = null,
     itemComposable: @Composable (Int, Int) -> Unit,
 ) {
     /**
@@ -50,32 +50,36 @@ fun LazyTable(
             )
         }
     Column(modifier.nestedScroll(nestedScrollConnection)) {
-        /**
-         * header row and it's listeners
-         */
-        val headerRowState = rememberLazyListState()
-        ListenScroll(
-            nestedScrollConnection.currentXScroll, headerRowState,
-        )
-        LazyRow(state = headerRowState) {
-            items(rowCount + 1) {
-                columnHeader.invoke(it)
+        if (columnHeader!=null) {
+            /**
+             * header row and it's listeners
+             */
+            val headerRowState = rememberLazyListState()
+            ListenScroll(
+                nestedScrollConnection.currentXScroll, headerRowState,
+            )
+            LazyRow(state = headerRowState) {
+                items(rowCount + 1) {
+                    columnHeader.invoke(it)
+                }
             }
         }
         /**
          * Rest of UI
          */
         Row {
-            /**
-             * Header column
-             */
-            val headerColumnState = rememberLazyListState()
-            ListenScroll(
-                nestedScrollConnection.currentYScroll, headerColumnState,
-            )
-            LazyColumn(state = headerColumnState) {
-                items(colCount) {
-                    rowHeader.invoke(it)
+            if (rowHeader!=null) {
+                /**
+                 * Header column
+                 */
+                val headerColumnState = rememberLazyListState()
+                ListenScroll(
+                    nestedScrollConnection.currentYScroll, headerColumnState,
+                )
+                LazyColumn(state = headerColumnState) {
+                    items(colCount) {
+                        rowHeader.invoke(it)
+                    }
                 }
             }
 

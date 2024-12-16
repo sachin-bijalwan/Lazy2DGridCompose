@@ -41,103 +41,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Box(Modifier.padding(innerPadding)) {
+                        Test()
+                    }
                 }
             }
         }
     }
 }
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Box(modifier) {
-        Test()
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyApplicationTheme {
-        Greeting("Android")
-    }
-}
-/**
-@Composable
-fun TwoDimensionScrollableGrid(
-    totalHeight: Dp,
-    colCount: Int,
-    rowCount: Int,
-    itemComposable: @Composable (Int,Int) -> Unit
-) {
-    val horizontalScrollState = rememberScrollState()
-    LazyRow (modifier = Modifier.
-    height(totalHeight)) {
-         items (rowCount) {row ->
-            val childState = rememberLazyListState()
-            LazyColumn(state = childState, userScrollEnabled = false) {
-                items(colCount) { col: Int ->
-                    itemComposable.invoke(row,col)
-                    LogCompositions("zimati","$row $col and ")
-                }
-            }
-        }
-    }
-}
-@Composable
-fun ExcelSheet(data: ImmutableList) {
-    val textMeasurer = rememberTextMeasurer()
-    val padding = with(LocalDensity.current) {
-        28.dp.toPx().toInt()
-    }
-    val height =
-        remember(data) {
-            textMeasurer.measure(data.data[0][0]).size.height+ padding
-        }
-    TwoDimensionScrollableGrid(
-        totalHeight = with(LocalDensity.current) { (height*data.data.size).toDp() },
-        colCount = data.data.size,
-        rowCount = data.data[0].size
-    ) { row, col ->
-        val height = with(LocalDensity.current) {height.toDp()}
-        Text(data.data[col][row],Modifier.height(height).width(50.dp), style = TextStyle(platformStyle = PlatformTextStyle(
-            includeFontPadding = false
-        )))
-    }
-   // with(LocalDensity.current) { widthInPixels.toDp() }
-}
-@Composable
-fun Test() {
-    val data = MutableList(50) { col ->
-        MutableList(20) {
-            "abc$it/$col"
-        }
-    }
-    ExcelSheet(ImmutableList(data))
-}
-class RecompositionCounter(var value: Int)
-@Immutable
-data class ImmutableList(val data: List<List<String>>)
-
-@Composable
-fun LogCompositions(tag: String, msg: String) {
-    if (true) {
-        val recompositionCounter = remember { RecompositionCounter(0) }
-
-        Log.d(tag, "$msg ${recompositionCounter.value} $currentRecomposeScope")
-        recompositionCounter.value++
-    }
-}
-/**
- * r: row, c: col
- * 0..r
- * .
- * .
- * c
- * outer loop is c and inner loop is r
- *
- * first index is col then row
- */

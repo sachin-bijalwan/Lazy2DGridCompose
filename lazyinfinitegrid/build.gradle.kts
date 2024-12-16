@@ -57,10 +57,10 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("release") {
-
+            artifact("build/outputs/aar/lazyinfinitegrid-release.aar")
             groupId = "com.zeel"
             artifactId = "lazyinfinitegrid"
-            version = "0.0.1"
+            version = "0.0.3"
         }
     }
 

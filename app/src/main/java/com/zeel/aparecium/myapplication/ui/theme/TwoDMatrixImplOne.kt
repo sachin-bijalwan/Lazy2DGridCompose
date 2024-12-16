@@ -48,9 +48,17 @@ fun ExcelSheet(data: ImmutableList) {
      *
      * first index is col then row
      */
-    val header: @Composable (Int) -> Unit = {
+    val rowHeader: @Composable (Int) -> Unit = {
         Text(
-            "$it",
+            "Row$it",
+            Modifier
+                .height(height)
+                .width(width)
+        )
+    }
+    val columnHeader: @Composable (Int) -> Unit = {
+        Text(
+            "Col${it-1}",
             Modifier
                 .height(height)
                 .width(width)
@@ -62,8 +70,8 @@ fun ExcelSheet(data: ImmutableList) {
         heightInPixels = heightInPixels,
         maxVerticalScrollThatCanHappen = maxVerticalScrollThatCanHappen,
         maxHorizontalScrollThatCanHappen = maxHorizontalScrollThatCanHappen,
-        rowHeader = header,
-        columnHeader = header
+        rowHeader = rowHeader,
+        columnHeader = columnHeader
     ) { row, col ->
         Text(
             data.data[col][row],
