@@ -23,6 +23,10 @@ Add following repository for dependency resolution. Since we are using github pa
             }
         }
 ```
+Add this to module level build.gradle. Update the version to latest version seen in repo packages  -
+```
+    implementation 'com.zeel:lazyinfinitegrid:0.0.3'
+```
 
 Once dependencies are synced you can invoke LazyTable composable. 
 
